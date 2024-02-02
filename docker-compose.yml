@@ -1,0 +1,36 @@
+version: "3"
+services:
+  app:
+    build: ./
+    container_name: SmartQuiz-app
+    ports:
+      - 8080:8080
+#    env_file:
+#      - cred.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/smartquizappDB3
+      SPRING_DATASOURCE_PASSWORD: DivineMercy123
+      SPRING_DATASOURCE_USERNAME: root
+    depends_on:
+      - db
+    networks:
+      - smartquiz-api
+
+  db:
+    image: mysql:latest
+    container_name: mysqlDB
+    ports:
+      - 3307:3307
+#    env_file:
+#      - cred.env
+    environment:
+      MYSQL_ROOT_PASSWORD: DivineMercy123
+      MYSQL_DATABASE: smartquizappDB3
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: DivineMercy123
+    networks:
+      - smartquiz-api
+
+networks:
+  smartquiz-api:
+    driver: bridge

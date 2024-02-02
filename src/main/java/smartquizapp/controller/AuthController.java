@@ -78,8 +78,8 @@ public class AuthController {
     }
 
 
-    @GetMapping("/verifyRegistration/{token}")
-    public ResponseEntity<String> verifyRegistration(@PathVariable String token) {
+    @GetMapping("/verifyRegistration")
+    public ResponseEntity<String> verifyRegistration(@RequestParam("token") String token) {
         String result = userService.validateVerificationToken(token);
         if(result.equalsIgnoreCase("valid")){
             return new ResponseEntity<>("User verified Successfully", HttpStatus.OK);
@@ -87,8 +87,8 @@ public class AuthController {
         throw new UserNotVerifiedException("User is not Verified Successfully");
     }
 
-    @GetMapping("/resendVerifyToken/{oldToken}")
-    public ResponseEntity<String> resendVerificationToken(@PathVariable String oldToken,
+    @GetMapping("/resendVerifyToken")
+    public ResponseEntity<String> resendVerificationToken(@RequestParam("oldtoken") String oldToken,
                                                           HttpServletRequest request){
 
         VerificationToken verificationToken =

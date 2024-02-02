@@ -58,10 +58,10 @@ public class WebSecurityConfig implements WebSecurityConfigurer {
                         httpRequest
                                 .requestMatchers("/api/v1/user/register",
                                         "/api/v1/user/login",
-                                        "/api/v1/user/verifyRegistration/{token}",
+                                        "/api/v1/user/verifyRegistration",
                                         "/api/v1/user/forgotPassword",
                                         "/api/v1/user/resetPassword/{token}",
-                                        "/api/v1/user/resendVerifyToken/{oldToken}",
+                                        "/api/v1/user/resendVerifyToken",
                                         "/api/v1/user/dashboard",
                                         "/api/v1/quiz/all-quiz-images",
                                         "/swagger-ui/**",

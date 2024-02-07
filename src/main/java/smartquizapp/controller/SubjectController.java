@@ -13,7 +13,7 @@ import smartquizapp.serviceImpl.SubjectServiceImpl;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = { "http://localhost:5173", "https://smartquiz.onrender.com" })
 @RequestMapping("/subject")
 public class SubjectController {
     private final SubjectServiceImpl subjectService;

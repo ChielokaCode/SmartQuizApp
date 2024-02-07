@@ -10,7 +10,7 @@ import smartquizapp.model.User;
 @AllArgsConstructor
 @NoArgsConstructor
 public class StudentResponseDto {
-    private Question question;
-    private User student;
+    private Long questionId;
     private String response;
+    private User student;
 }

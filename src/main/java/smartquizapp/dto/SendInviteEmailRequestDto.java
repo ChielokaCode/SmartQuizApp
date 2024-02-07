@@ -8,5 +8,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SendInviteEmailRequestDto {
-    private String emails;
+    private String email;
 }

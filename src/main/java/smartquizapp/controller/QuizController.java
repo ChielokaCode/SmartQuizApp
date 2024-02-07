@@ -1,16 +1,12 @@
 package smartquizapp.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import smartquizapp.dto.QuizResponseDto;
-import smartquizapp.dto.QuizSubmissionDto;
-import smartquizapp.dto.QuizTestDto;
-import smartquizapp.dto.SendInviteEmailRequestDto;
-import smartquizapp.model.Question;
+import smartquizapp.dto.*;
 import smartquizapp.model.QuizImage;
 import smartquizapp.serviceImpl.QuizImageServiceImpl;
 import smartquizapp.serviceImpl.QuizServiceImpl;
@@ -19,7 +15,7 @@ import java.util.List;
 
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = { "http://localhost:5173", "https://smartquiz.onrender.com" })
 @RequestMapping("/api/v1/quiz")
 public class QuizController {
     private final QuizImageServiceImpl quizImageService;
@@ -60,10 +56,11 @@ public class QuizController {
         return ResponseEntity.status(HttpStatus.OK).body("Quiz edited successfully");
     }
 
-    @PostMapping("/send-invite-link")
+    @PostMapping("/send-invite-link/{quizId}")
     public ResponseEntity<String> sendInviteLink(@RequestBody SendInviteEmailRequestDto invite,
-                                                 HttpServletRequest request) {
-        String response = quizService.sendInviteEmail(invite, request);
+                                                 @PathVariable Long quizId,
+                                                 Authentication authentication) {
+        String response = quizService.sendInviteEmail(invite,quizId, authentication);
         return  new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -78,10 +75,26 @@ public class QuizController {
         List<QuizResponseDto> quizResponse = quizService.getAllDraftPublishQuiz(isPublish);
         return ResponseEntity.status(HttpStatus.OK).body(quizResponse);
     }
-    @RequestMapping(value = "/take-quiz/{quizId}", method = {RequestMethod.GET, RequestMethod.POST})
-    public ResponseEntity<?> takeOrSubmitQuiz(@PathVariable Long quizId, @RequestBody(required = false) QuizSubmissionDto quizSubmission) {
-       return new ResponseEntity<>(quizService.takeOrSubmitQuiz(quizId, quizSubmission), HttpStatus.OK);
+//    @RequestMapping(value = "/take-quiz/{quizId}", method = {RequestMethod.GET, RequestMethod.POST})
+//    public ResponseEntity<?> takeOrSubmitQuiz(@PathVariable Long quizId, @RequestBody(required = false) QuizSubmissionDto quizSubmission) {
+//       return new ResponseEntity<>(quizService.takeOrSubmitQuiz(quizId, quizSubmission), HttpStatus.OK);
+//    }
+
+    @GetMapping("/take-quiz/{quizId}")
+    public ResponseEntity<QuizResponseDto> getQuiz(@PathVariable Long quizId) {
+        QuizResponseDto quizResponse = quizService.getQuiz(quizId);
+        return new ResponseEntity<>(quizResponse, HttpStatus.OK);
     }
+
+    @PostMapping("/{quizId}/submit")
+    public ResponseEntity<String> submitQuiz(
+            @PathVariable Long quizId,
+            @RequestBody List<StudentResponseDto> responses) {
+        quizService.submitQuiz(quizId, responses);
+        return ResponseEntity.ok("Quiz submitted successfully");
+    }
+
+
     @GetMapping("/quizzes-by-subject/{subjectName}")
     public ResponseEntity<List<QuizResponseDto>> getQuizzesBySubject(@PathVariable String subjectName) {
         List<QuizResponseDto> quizResponseDTOs = quizService.getQuizzesBySubject(subjectName);

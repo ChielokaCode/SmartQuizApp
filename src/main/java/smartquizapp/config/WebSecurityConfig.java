@@ -17,9 +17,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 import smartquizapp.serviceImpl.UserServiceImpl;
 import smartquizapp.utils.JwtAuthenticationFilter;
 
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @EnableWebSecurity
 @Configuration
@@ -39,6 +45,17 @@ public class WebSecurityConfig implements WebSecurityConfigurer {
         return new BCryptPasswordEncoder();
     }
 
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("*"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
 
 
     @Bean
@@ -53,15 +70,14 @@ public class WebSecurityConfig implements WebSecurityConfigurer {
     public SecurityFilterChain httpSecurity(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
-
                 .authorizeHttpRequests(httpRequest ->
                         httpRequest
                                 .requestMatchers("/api/v1/user/register",
                                         "/api/v1/user/login",
-                                        "/api/v1/user/verifyRegistration",
+                                        "/api/v1/user/verifyRegistration/{token}",
                                         "/api/v1/user/forgotPassword",
                                         "/api/v1/user/resetPassword/{token}",
-                                        "/api/v1/user/resendVerifyToken",
+                                        "/api/v1/user/resendVerifyToken/{oldToken}",
                                         "/api/v1/user/dashboard",
                                         "/api/v1/quiz/all-quiz-images",
                                         "/swagger-ui/**",
@@ -80,7 +96,7 @@ public class WebSecurityConfig implements WebSecurityConfigurer {
                                         "/api/v1/questions/edit/{questionId}",
                                         "/api/v1/quiz/{id}/publish",
                                         "/api/v1/quiz/get-published-draft",
-                                        "/api/v1/quiz//take-quiz/{quizId}",
+                                        "/api/v1/quiz/take-quiz/{quizId}",
                                         "/api/v1/quiz/quizzes-by-subject/{subjectName}").authenticated())
                 .logout(logout -> logout
                         .deleteCookies("remove")

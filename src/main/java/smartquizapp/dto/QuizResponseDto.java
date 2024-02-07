@@ -11,6 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class QuizResponseDto {
+        private Long id;
         private Subject subjectType;
         private String description;
         private int timeLimit;
@@ -20,7 +21,8 @@ public class QuizResponseDto {
         private Boolean isPrivate;
         private Boolean isPublish;
         private List<QuestionDto> questions;
-
-
+        private int questionCount;
+        private String userFirstName;
+        private String userLastName;
     }
 

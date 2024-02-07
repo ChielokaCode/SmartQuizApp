@@ -3,6 +3,7 @@ package smartquizapp.serviceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -108,12 +109,17 @@ public class QuizServiceImpl implements QuizService {
 
     private QuizResponseDto convertToQuizResponseDTO(Quiz quiz, List<Question> question) {
         QuizResponseDto quizResponseDTO = new QuizResponseDto();
+        quizResponseDTO.setId(quiz.getId());
         quizResponseDTO.setTopic(quiz.getTopic());
         quizResponseDTO.setDescription(quiz.getDescription());
         quizResponseDTO.setImageUrl(quiz.getImageUrl());
         quizResponseDTO.setSubjectType(quiz.getSubjectType());
         quizResponseDTO.setTotalMarks(quiz.getTotalMarks());
         quizResponseDTO.setTimeLimit(quiz.getTimeLimit());
+        quizResponseDTO.setUserFirstName(quiz.getUser().getFirstName());
+        quizResponseDTO.setUserLastName(quiz.getUser().getLastName());
+        List<Question> questionList1 = questionRepository.findAllByQuiz(quiz);
+        quizResponseDTO.setQuestionCount(questionList1.size());
 
         List<QuestionDto> questionList = new ArrayList<>();
         for(Question question1 : question){
@@ -266,27 +272,42 @@ public class QuizServiceImpl implements QuizService {
         return quizResponseDtoList;
     }
 
-
-
+    @Override
+    public ResponseEntity<?> takeOrSubmitQuiz(Long quizId, QuizSubmissionDto quizSubmission) {
+        return null;
+    }
 
 
 
     @Override
-    public String sendInviteEmail(SendInviteEmailRequestDto invite, HttpServletRequest request) {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Quiz quiz = quizTestRepository.findByUserId(user.getId());
-        int quizQuestionCount = quiz.getQuestions().size();
-        String subjectName = quiz.getSubjectType().getName();
+    public String sendInviteEmail(SendInviteEmailRequestDto invite,Long quizId, Authentication authentication) {
 
+        User user = (User) authentication.getPrincipal();
+
+        // Check if user is authenticated
+        if (user == null) {
+            throw new UserNotVerifiedException("User is not authenticated");
+        }
+
+        // Fetch the quiz by ID
+        Quiz quiz = quizTestRepository.findByUserIdAndId(user.getId(), quizId);
+
+        // Check if quiz is found
+        if (quiz == null) {
+            throw new QuizNotFoundException("Quiz not found with ID: " + quizId);
+        }
+
+        // Check user role
         if (!user.getUserRole().equals(Role.EDUCATOR)){
             throw new UserNotVerifiedException("You don't have Permission to send invites");
         }
-        String singleEmail = invite.getEmails();
+
+        String singleEmail = invite.getEmail();
         String[] splitEmail = singleEmail.split(",");
 
         for (String email : splitEmail) {
             String name = email.split("@")[0];
-            String url = emailService.applicationUrl(request) + "/api/v1/questions/take-quiz?quizQuestionCount=" + quizQuestionCount + "&subjectName=" + subjectName;
+            String url = "http://localhost:5173" + "/start-quiz/" + quiz.getId();
             emailService.sendSimpleEmail(
                     email.trim(),
                     "Dear " + name + ", " +"\n" +
@@ -313,7 +334,7 @@ public class QuizServiceImpl implements QuizService {
                             "\n" +
                             "Best Regards,\n" +
                             "\n" +
-                            name +"\n" +
+                            user.getFirstName() +"\n" +
                             "Smart Quiz Team\n" +
                             "\n" +
                             "P.S. Stay tuned for more engaging quizzes and learning experiences on the Smart Quiz app!",
@@ -324,48 +345,146 @@ public class QuizServiceImpl implements QuizService {
         return "Invite Email Sent Successfully";
     }
 
+//    @Override
+//    public ResponseEntity<?> takeOrSubmitQuiz(Long quizId, QuizSubmissionDto quizSubmission) {
+//        User student = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//
+//        try {
+//            Quiz quiz = quizTestRepository.findById(quizId).orElseThrow(() -> new QuizNotFoundException("Quiz not found"));
+//
+//            if (!quiz.getIsPublish()) {
+//                throw new StudentResponseBadRequest("Quiz is not published yet");
+//            }
+//
+//            if (quiz.getTimeLimit() > 0 && !isWithinTimeWindow(quiz)) {
+//                throw new StudentResponseBadRequest("Quiz has ended");
+//            }
+//
+//            if (quizSubmission == null) {
+//                List<Question> questions = questionRepository.findAllByQuizId(quizId);
+//                Collections.shuffle(questions);
+//                QuizResponseDto quizResponseDTO = convertToQuizResponseDTO(quiz, questions);
+//                return ResponseEntity.status(HttpStatus.OK).body(quizResponseDTO);
+//            } else {
+//                if (quiz.getIsPublish() && isWithinTimeWindow(quiz)) {
+//                    validateAndSaveStudentResponses(student, quiz, quizSubmission.getResponses());
+//                    return ResponseEntity.status(HttpStatus.OK).body("Quiz submitted successfully");
+//                } else {
+//                    throw new StudentResponseBadRequest("Quiz submission not allowed at this time");
+//                }
+//            }
+//        } catch (Exception e) {
+//             throw new StudentResponseBadRequest("Internal server error.");
+//        }
+//    }
+//
+//    private void validateAndSaveStudentResponses(User student, Quiz quiz, List<StudentResponseDto> responses) {
+//        List<Question> questions = questionRepository.findAllByQuizId(quiz.getId());
+//
+//        if (responses.size() > questions.size()) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Too many student responses");
+//        }
+//
+//        List<StudentResponse> capturedResponses = new ArrayList<>();
+//
+//
+//        for (int i = 0; i < questions.size(); i++) {
+//            Question question = questions.get(i);
+//
+//            if (i < responses.size()) {
+//                StudentResponseDto studentResponseDto = responses.get(i);
+//
+//                StudentResponse capturedResponse = new StudentResponse();
+//                capturedResponse.setQuestion(question);
+//                capturedResponse.setStudent(student);
+//                capturedResponse.setResponse(studentResponseDto.getResponse());
+//
+//                capturedResponses.add(capturedResponse);
+//            }
+//        }
+//
+//        studentResponseRepository.saveAll(capturedResponses);
+//    }
+//
+//    private boolean isWithinTimeWindow(Quiz quiz) {
+//        if (quiz.getTimeLimit() <= 0) {
+//            return true;
+//        }
+//
+//        LocalDateTime currentTime = LocalDateTime.now();
+//        LocalDateTime quizStartTime = getQuizStartTime(quiz);
+//        LocalDateTime quizEndTime = quizStartTime.plusMinutes(quiz.getTimeLimit());
+//
+//        return currentTime.isBefore(quizEndTime);
+//    }
+//
+//    private LocalDateTime getQuizStartTime(Quiz quiz) {
+//        return LocalDateTime.now();
+//    }
     @Override
-    public ResponseEntity<?> takeOrSubmitQuiz(Long quizId, QuizSubmissionDto quizSubmission) {
-        User student = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public List<QuizResponseDto> getQuizzesBySubject(String subjectName) {
 
-        try {
-            Quiz quiz = quizTestRepository.findById(quizId).orElseThrow(() -> new QuizNotFoundException("Quiz not found"));
+        Subject subject = subjectRepository.findByNameIgnoreCase(subjectName);
 
-            if (!quiz.getIsPublish()) {
-                throw new StudentResponseBadRequest("Quiz is not published yet");
-            }
+        if (subject == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Subject not found");
+        }
 
-            if (quiz.getTimeLimit() > 0 && !isWithinTimeWindow(quiz)) {
-                throw new StudentResponseBadRequest("Quiz has ended");
-            }
+        List<Quiz> quizzes = quizTestRepository.findAllBySubjectType(subject);
+        List<QuizResponseDto> quizResponseDTOs = new ArrayList<>();
 
-            if (quizSubmission == null) {
-                List<Question> questions = questionRepository.findAllByQuizId(quizId);
-                Collections.shuffle(questions);
-                QuizResponseDto quizResponseDTO = convertToQuizResponseDTO(quiz, questions);
-                return ResponseEntity.status(HttpStatus.OK).body(quizResponseDTO);
-            } else {
-                if (quiz.getIsPublish() && isWithinTimeWindow(quiz)) {
-                    validateAndSaveStudentResponses(student, quiz, quizSubmission.getResponses());
-                    return ResponseEntity.status(HttpStatus.OK).body("Quiz submitted successfully");
-                } else {
-                    throw new StudentResponseBadRequest("Quiz submission not allowed at this time");
-                }
-            }
-        } catch (Exception e) {
-             throw new StudentResponseBadRequest("Internal server error.");
+        for (Quiz quiz : quizzes) {
+            List<Question> questions = questionRepository.findAllByQuizId(quiz.getId());
+            quizResponseDTOs.add(convertToQuizResponseDTO(quiz, questions));
+        }
+
+        return quizResponseDTOs;
+    }
+
+
+    @Override
+    public QuizResponseDto getQuiz(Long quizId) {
+        Quiz quiz = quizTestRepository.findById(quizId)
+                .orElseThrow(() -> new QuizNotFoundException("Quiz not found"));
+
+        validateQuizAvailability(quiz);
+
+        List<Question> questions = questionRepository.findAllByQuizId(quizId);
+        Collections.shuffle(questions);
+
+        return convertToQuizResponseDTO(quiz, questions);
+    }
+
+    @Override
+    public void submitQuiz(Long quizId, List<StudentResponseDto> responses) {
+        Quiz quiz = quizTestRepository.findById(quizId)
+                .orElseThrow(() -> new QuizNotFoundException("Quiz not found"));
+
+        validateQuizAvailability(quiz);
+
+        validateAndSaveStudentResponses(quiz, responses);
+    }
+
+    private void validateQuizAvailability(Quiz quiz) {
+        if (!quiz.getIsPublish()) {
+            throw new StudentResponseBadRequest("Quiz is not published yet");
+        }
+
+        if (quiz.getTimeLimit() > 0 && !isWithinTimeWindow(quiz)) {
+            throw new StudentResponseBadRequest("Quiz has ended");
         }
     }
 
-    private void validateAndSaveStudentResponses(User student, Quiz quiz, List<StudentResponseDto> responses) {
+    private void validateAndSaveStudentResponses(Quiz quiz, List<StudentResponseDto> responses) {
         List<Question> questions = questionRepository.findAllByQuizId(quiz.getId());
 
         if (responses.size() > questions.size()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Too many student responses");
         }
 
-        List<StudentResponse> capturedResponses = new ArrayList<>();
+        User student = getCurrentUser();
 
+        List<StudentResponse> capturedResponses = new ArrayList<>();
 
         for (int i = 0; i < questions.size(); i++) {
             Question question = questions.get(i);
@@ -386,10 +505,6 @@ public class QuizServiceImpl implements QuizService {
     }
 
     private boolean isWithinTimeWindow(Quiz quiz) {
-        if (quiz.getTimeLimit() <= 0) {
-            return true;
-        }
-
         LocalDateTime currentTime = LocalDateTime.now();
         LocalDateTime quizStartTime = getQuizStartTime(quiz);
         LocalDateTime quizEndTime = quizStartTime.plusMinutes(quiz.getTimeLimit());
@@ -398,28 +513,14 @@ public class QuizServiceImpl implements QuizService {
     }
 
     private LocalDateTime getQuizStartTime(Quiz quiz) {
+        // Implement logic to get the quiz start time from the database or elsewhere
         return LocalDateTime.now();
     }
-    @Override
-    public List<QuizResponseDto> getQuizzesBySubject(String subjectName) {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Subject subject = subjectRepository.findByNameIgnoreCase(subjectName);
 
-        if (subject == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Subject not found");
-        }
-
-        List<Quiz> quizzes = quizTestRepository.findAllBySubjectType(subject);
-        List<QuizResponseDto> quizResponseDTOs = new ArrayList<>();
-
-        for (Quiz quiz : quizzes) {
-            List<Question> questions = questionRepository.findAllByQuizId(quiz.getId());
-            quizResponseDTOs.add(convertToQuizResponseDTO(quiz, questions));
-        }
-
-        return quizResponseDTOs;
+    private User getCurrentUser() {
+        // Implement logic to get the current user from the security context or authentication
+        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
-
 
 
 }

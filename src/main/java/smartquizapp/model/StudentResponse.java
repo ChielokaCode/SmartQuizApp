@@ -22,11 +22,13 @@ public class StudentResponse {
     @ManyToOne
     private Question question;
 
+    private String answer;
+
+    @Column
+    private Integer scores;
+
     @ManyToOne
     private User student;
-
-    @Column(columnDefinition = "TEXT")
-    private String response;
 
 
 }

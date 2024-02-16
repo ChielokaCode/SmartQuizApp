@@ -14,6 +14,7 @@ public interface QuizTestRepository extends JpaRepository<Quiz, Long> {
 //    Quiz findByUserId(Long id);
     List<Quiz> findAllByIsPublishAndUser(Boolean isPublish,User user);
 
+
     List<Quiz> findAllBySubjectType(Subject subject);
 
     Quiz findByUserIdAndId(Long id, Long quizId);

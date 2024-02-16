@@ -53,6 +53,12 @@ public class DefaultExceptionHandler {
         return buildErrorResponse(request, HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
+    @ExceptionHandler(MailConnectionException.class)
+    public ResponseEntity<ApiError> handleUploadProfileImageException(
+            MailConnectionException e, HttpServletRequest request) {
+        return buildErrorResponse(request, HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
     @ExceptionHandler(StudentResponseBadRequest.class)
     public ResponseEntity<ApiError> handleUploadProfileImageException(
             StudentResponseBadRequest e, HttpServletRequest request) {

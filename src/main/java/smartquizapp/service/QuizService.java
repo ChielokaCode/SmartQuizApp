@@ -1,28 +1,28 @@
 package smartquizapp.service;
 
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.security.core.Authentication;
 import smartquizapp.dto.*;
-import smartquizapp.model.Question;
-import smartquizapp.model.Quiz;
+import smartquizapp.exception.MailConnectionException;
+
 
 import java.util.List;
 
 public interface QuizService {
     QuizResponseDto getQuiz(Long quizId);
-    void submitQuiz(Long quizId, List<StudentResponseDto> responses);
-    void createQuizQuestion(QuizTestDto quizTestDto);
+//    void submitQuiz(Long quizId, List<StudentResponseDto> responses);
+    void createQuizQuestion(QuizTestDto quizTestDto, Boolean isPublish);
     String deleteQuiz(Long quizId);
     QuizResponseDto getQuizbyEducator(Long quizId);
     void editQuizById(Long id, QuizTestDto quizTestDto);
-    String sendInviteEmail(SendInviteEmailRequestDto invite,Long quizId, Authentication authentication);
+    String sendInviteEmail(SendInviteEmailRequestDto invite,Long quizId) throws MailConnectionException;
     void publishQuiz(Long quizId);
     public List<QuizResponseDto> getAllDraftPublishQuiz(Boolean isPublish);
 
-    ResponseEntity<?> takeOrSubmitQuiz(Long quizId, QuizSubmissionDto quizSubmission);
+//    ResponseEntity<?> takeOrSubmitQuiz(Long quizId, QuizSubmissionDto quizSubmission);
 
     List<QuizResponseDto> getQuizzesBySubject(String subjectName);
+    void submitQuiz(Long quizId, StudentResponseDto studentResponse);
 }
 
 

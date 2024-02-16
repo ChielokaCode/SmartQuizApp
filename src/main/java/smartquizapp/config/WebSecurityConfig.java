@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.SecurityBuilder;
@@ -22,7 +24,6 @@ import smartquizapp.serviceImpl.UserServiceImpl;
 import smartquizapp.utils.JwtAuthenticationFilter;
 
 import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
@@ -56,6 +57,11 @@ public class WebSecurityConfig implements WebSecurityConfigurer {
         return source;
     }
 
+    @Bean
+    public JavaMailSender javaMailSender() {
+        // Configure mailSender properties such as host, port, username, password, etc.
+        return new JavaMailSenderImpl();
+    }
 
 
     @Bean
@@ -74,7 +80,7 @@ public class WebSecurityConfig implements WebSecurityConfigurer {
                         httpRequest
                                 .requestMatchers("/api/v1/user/register",
                                         "/api/v1/user/login",
-                                        "/api/v1/user/verifyRegistration/{token}",
+                                        "/api/v1/user/verifyRegistration",
                                         "/api/v1/user/forgotPassword",
                                         "/api/v1/user/resetPassword/{token}",
                                         "/api/v1/user/resendVerifyToken/{oldToken}",

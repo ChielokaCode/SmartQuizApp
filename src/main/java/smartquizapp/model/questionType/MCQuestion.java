@@ -20,8 +20,8 @@ public class MCQuestion extends Question{
 @ElementCollection
 private List<String> options;
 
-@ElementCollection
-private List<String> answer;
+//@ElementCollection
+private String answer;
 
 
 }

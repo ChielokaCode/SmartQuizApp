@@ -12,6 +12,7 @@
 /Users/wikiwoo/Desktop/JavaTuts/smartQuiz/src/main/java/smartquizapp/utils/GoogleJwtUtils.java
 /Users/wikiwoo/Desktop/JavaTuts/smartQuiz/src/main/java/smartquizapp/dto/DragAndDropQuestionDto.java
 /Users/wikiwoo/Desktop/JavaTuts/smartQuiz/src/main/java/smartquizapp/model/Options.java
+/Users/wikiwoo/Desktop/JavaTuts/smartQuiz/src/main/java/smartquizapp/exception/MailConnectionException.java
 /Users/wikiwoo/Desktop/JavaTuts/smartQuiz/src/main/java/smartquizapp/utils/JwtAuthenticationFilter.java
 /Users/wikiwoo/Desktop/JavaTuts/smartQuiz/src/main/java/smartquizapp/model/Question.java
 /Users/wikiwoo/Desktop/JavaTuts/smartQuiz/src/main/java/smartquizapp/repository/QuizTestRepository.java
@@ -54,6 +55,7 @@
 /Users/wikiwoo/Desktop/JavaTuts/smartQuiz/src/main/java/smartquizapp/repository/StudentResponseRepository.java
 /Users/wikiwoo/Desktop/JavaTuts/smartQuiz/src/main/java/smartquizapp/exception/StudentResponseBadRequest.java
 /Users/wikiwoo/Desktop/JavaTuts/smartQuiz/src/main/java/smartquizapp/exception/InvalidTokenException.java
+/Users/wikiwoo/Desktop/JavaTuts/smartQuiz/src/main/java/smartquizapp/config/WebConfig.java
 /Users/wikiwoo/Desktop/JavaTuts/smartQuiz/src/main/java/smartquizapp/exception/ValidationError.java
 /Users/wikiwoo/Desktop/JavaTuts/smartQuiz/src/main/java/smartquizapp/repository/VerificationTokenRepository.java
 /Users/wikiwoo/Desktop/JavaTuts/smartQuiz/src/main/java/smartquizapp/controller/QuizController.java

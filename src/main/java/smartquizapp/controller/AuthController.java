@@ -2,6 +2,7 @@ package smartquizapp.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.eclipse.angus.mail.util.MailConnectException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import smartquizapp.dto.*;
 import smartquizapp.event.RegistrationCompleteEvent;
 import smartquizapp.exception.InvalidTokenException;
+import smartquizapp.exception.MailConnectionException;
 import smartquizapp.exception.UserNotFoundException;
 import smartquizapp.exception.UserNotVerifiedException;
 import smartquizapp.model.User;
@@ -25,7 +27,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@CrossOrigin(origins = { "http://localhost:5173", "https://smartquiz.onrender.com" })
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 @RequestMapping("/api/v1/user")
 public class AuthController {
     private final UserServiceImpl userService;
@@ -45,12 +47,17 @@ public class AuthController {
     }
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@Valid @RequestBody UserDto userDto,
-                                                        final HttpServletRequest request)  {
+                                                        final HttpServletRequest request) throws MailConnectionException {
         User user = userService.registerUser(userDto);
-        publisher.publishEvent(new RegistrationCompleteEvent(
-                user,
-                emailService.applicationUrl(request)
-        ));
+        try {
+            publisher.publishEvent(new RegistrationCompleteEvent(
+                    user,
+                    emailService.applicationUrl(request)
+
+            ));
+        }catch (Exception e){
+            throw new MailConnectionException("Error sending mail");
+        }
         if(user != null) {
             return new ResponseEntity<>("Registration Successful", HttpStatus.OK);
         }else{
@@ -78,8 +85,8 @@ public class AuthController {
     }
 
 
-    @GetMapping("/verifyRegistration/{token}")
-    public ResponseEntity<String> verifyRegistration(@PathVariable String token) {
+    @GetMapping("/verifyRegistration")
+    public ResponseEntity<String> verifyRegistration(@RequestParam("token") String token) {
         String result = userService.validateVerificationToken(token);
         if(result.equalsIgnoreCase("valid")){
             return new ResponseEntity<>("User verified Successfully", HttpStatus.OK);
@@ -89,23 +96,31 @@ public class AuthController {
 
     @GetMapping("/resendVerifyToken/{oldToken}")
     public ResponseEntity<String> resendVerificationToken(@PathVariable String oldToken,
-                                                          HttpServletRequest request){
+                                                          HttpServletRequest request) throws MailConnectionException {
 
         VerificationToken verificationToken =
                 userService.generateNewVerificationToken(oldToken);
         User user = verificationToken.getUser();
-        emailService.resendVerificationTokenMail(user, emailService.applicationUrl(request), verificationToken);
+        try {
+            emailService.resendVerificationTokenMail(user, emailService.applicationUrl(request), verificationToken);
+        }catch (Exception e){
+            throw new MailConnectionException("Error sending mail");
+        }
         return new ResponseEntity<>("Verification Link Sent", HttpStatus.OK);
     }
 
     @PostMapping("/forgotPassword")
-    public ResponseEntity<String> forgotPassword(@RequestBody PasswordDto passwordDto, HttpServletRequest request) {
+    public ResponseEntity<String> forgotPassword(@RequestBody PasswordDto passwordDto, HttpServletRequest request) throws MailConnectionException {
         User user = userService.findUserByEmail(passwordDto.getEmail());
         String url = "";
         if(user != null){
             String token =  userService.generateRandomNumber(6);
             userService.createPasswordResetTokenForUser(user, token);
-            url = emailService.passwordResetTokenMail(user, emailService.applicationUrl(request), token);
+            try {
+                url = emailService.passwordResetTokenMail(user, emailService.applicationUrl(request), token);
+            }catch (Exception e){
+                throw new MailConnectionException("Error sending mail");
+            }
             return new ResponseEntity<>("Go to Email to reset Password " + url, HttpStatus.OK);
         }
         throw new UserNotFoundException("User with email " + passwordDto.getEmail() + "not found");

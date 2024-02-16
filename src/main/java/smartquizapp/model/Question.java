@@ -25,18 +25,20 @@ public class Question {
     private String questionContent;
 
     @NotNull(message = "Points cannot be null")
-    private Long point;
+    private int point;
 
     private int timeLimit;
 
     private String explanation;
 
     private String imageUrl;
+
     private QuestionType questionType;
+
     @ElementCollection
     private List<String> options;
-    @ElementCollection
-    private List<String> answer;
+
+    private String answer;
 
     @ManyToOne
     private User user;

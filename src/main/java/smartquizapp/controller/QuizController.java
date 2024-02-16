@@ -1,12 +1,12 @@
 package smartquizapp.controller;
 
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import smartquizapp.dto.*;
+import smartquizapp.exception.MailConnectionException;
 import smartquizapp.model.QuizImage;
 import smartquizapp.serviceImpl.QuizImageServiceImpl;
 import smartquizapp.serviceImpl.QuizServiceImpl;
@@ -15,7 +15,7 @@ import java.util.List;
 
 
 @RestController
-@CrossOrigin(origins = { "http://localhost:5173", "https://smartquiz.onrender.com" })
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 @RequestMapping("/api/v1/quiz")
 public class QuizController {
     private final QuizImageServiceImpl quizImageService;
@@ -40,9 +40,9 @@ public class QuizController {
 
     }
     @PostMapping("/create-quiz")
-    public ResponseEntity<String> createQuizQuestion (@Valid @RequestBody QuizTestDto quizTestDto){
-        quizService.createQuizQuestion(quizTestDto);
-        return ResponseEntity. status(HttpStatus.OK).body("Quiz Created Successfully");
+    public ResponseEntity<String> createQuizQuestion (@RequestBody QuizTestDto quizTestDto, @RequestParam (name = "isPublish") Boolean isPublish){
+        quizService.createQuizQuestion(quizTestDto, isPublish);
+        return ResponseEntity.status(HttpStatus.OK).body("Quiz Created Successfully");
     }
 
     @GetMapping("/get-quiz/{quizId}")
@@ -58,9 +58,8 @@ public class QuizController {
 
     @PostMapping("/send-invite-link/{quizId}")
     public ResponseEntity<String> sendInviteLink(@RequestBody SendInviteEmailRequestDto invite,
-                                                 @PathVariable Long quizId,
-                                                 Authentication authentication) {
-        String response = quizService.sendInviteEmail(invite,quizId, authentication);
+                                                 @PathVariable Long quizId) throws MailConnectionException {
+        String response = quizService.sendInviteEmail(invite,quizId);
         return  new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -89,9 +88,9 @@ public class QuizController {
     @PostMapping("/{quizId}/submit")
     public ResponseEntity<String> submitQuiz(
             @PathVariable Long quizId,
-            @RequestBody List<StudentResponseDto> responses) {
+            @RequestBody StudentResponseDto responses) {
         quizService.submitQuiz(quizId, responses);
-        return ResponseEntity.ok("Quiz submitted successfully");
+        return ResponseEntity.ok("Quiz submitted Successfully!");
     }
 
 

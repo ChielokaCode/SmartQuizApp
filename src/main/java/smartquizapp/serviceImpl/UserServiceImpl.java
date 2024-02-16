@@ -115,7 +115,10 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     }
     @Override
     public String logoutUser(HttpServletRequest request) {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userRepository.findUserByEmail(username);
+
         if (user != null) {
             SecurityContextHolder.getContext().setAuthentication(null);
             SecurityContextHolder.clearContext();

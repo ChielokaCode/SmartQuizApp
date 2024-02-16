@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import smartquizapp.dto.QuestionRequestDto;
 import smartquizapp.serviceImpl.QuestionServiceImpl;
 @RestController
-@CrossOrigin(origins = { "http://localhost:5173", "https://smartquiz.onrender.com" })
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 @RequestMapping("/api/v1/questions")
 public class QuestionController {
     private final QuestionServiceImpl questionService;

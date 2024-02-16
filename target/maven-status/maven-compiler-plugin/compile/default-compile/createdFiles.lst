@@ -16,6 +16,7 @@ smartquizapp/serviceImpl/SubjectServiceImpl.class
 smartquizapp/repository/MCQuestionRepository.class
 smartquizapp/repository/FeedbackRepository.class
 smartquizapp/serviceImpl/QuizImageServiceImpl.class
+smartquizapp/config/WebConfig.class
 smartquizapp/model/Subject.class
 smartquizapp/repository/QuestionRepository.class
 smartquizapp/exception/UserNotVerifiedException.class
@@ -72,6 +73,7 @@ smartquizapp/repository/StudentResponseRepository.class
 smartquizapp/model/Options.class
 smartquizapp/exception/QuizNotFoundException.class
 smartquizapp/config/WebResourcesHandlerConfig.class
+smartquizapp/exception/MailConnectionException.class
 smartquizapp/utils/JwtAuthenticationFilter.class
 smartquizapp/model/PasswordResetToken.class
 smartquizapp/repository/FillBlankQuestionRepository.class

@@ -19,9 +19,5 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
 
     List<Question> findAllByQuizId(Long id);
     List<Question> findAllByQuiz(Quiz quiz);
-
-
-
-
 }
 

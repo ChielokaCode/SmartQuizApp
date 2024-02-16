@@ -8,10 +8,10 @@ import java.util.List;
 public class QuestionDto {
 
         private String questionContent;
-        private Long point;
+        private int point;
         private String explanation;
 
         private QuestionType questionType;
         private List<String> options;
-        private List<String> answer;
+        private String answer;
     }

@@ -74,10 +74,6 @@ public class QuizController {
         List<QuizResponseDto> quizResponse = quizService.getAllDraftPublishQuiz(isPublish);
         return ResponseEntity.status(HttpStatus.OK).body(quizResponse);
     }
-//    @RequestMapping(value = "/take-quiz/{quizId}", method = {RequestMethod.GET, RequestMethod.POST})
-//    public ResponseEntity<?> takeOrSubmitQuiz(@PathVariable Long quizId, @RequestBody(required = false) QuizSubmissionDto quizSubmission) {
-//       return new ResponseEntity<>(quizService.takeOrSubmitQuiz(quizId, quizSubmission), HttpStatus.OK);
-//    }
 
     @GetMapping("/take-quiz/{quizId}")
     public ResponseEntity<QuizResponseDto> getQuiz(@PathVariable Long quizId) {

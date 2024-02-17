@@ -319,10 +319,6 @@ public class QuizServiceImpl implements QuizService {
         return quizResponseDtoList;
     }
 
-//    @Override
-//    public ResponseEntity<?> takeOrSubmitQuiz(Long quizId, QuizSubmissionDto quizSubmission) {
-//        return null;
-//    }
 
 
 
@@ -393,87 +389,10 @@ try {
 }catch (Exception e){
     throw new MailConnectionException("Error sending Mail");
 }
-
         }
         return "Invite Email Sent Successfully";
     }
 
-//    @Override
-//    public ResponseEntity<?> takeOrSubmitQuiz(Long quizId, QuizSubmissionDto quizSubmission) {
-//        User student = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//
-//        try {
-//            Quiz quiz = quizTestRepository.findById(quizId).orElseThrow(() -> new QuizNotFoundException("Quiz not found"));
-//
-//            if (!quiz.getIsPublish()) {
-//                throw new StudentResponseBadRequest("Quiz is not published yet");
-//            }
-//
-//            if (quiz.getTimeLimit() > 0 && !isWithinTimeWindow(quiz)) {
-//                throw new StudentResponseBadRequest("Quiz has ended");
-//            }
-//
-//            if (quizSubmission == null) {
-//                List<Question> questions = questionRepository.findAllByQuizId(quizId);
-//                Collections.shuffle(questions);
-//                QuizResponseDto quizResponseDTO = convertToQuizResponseDTO(quiz, questions);
-//                return ResponseEntity.status(HttpStatus.OK).body(quizResponseDTO);
-//            } else {
-//                if (quiz.getIsPublish() && isWithinTimeWindow(quiz)) {
-//                    validateAndSaveStudentResponses(student, quiz, quizSubmission.getResponses());
-//                    return ResponseEntity.status(HttpStatus.OK).body("Quiz submitted successfully");
-//                } else {
-//                    throw new StudentResponseBadRequest("Quiz submission not allowed at this time");
-//                }
-//            }
-//        } catch (Exception e) {
-//             throw new StudentResponseBadRequest("Internal server error.");
-//        }
-//    }
-//
-//    private void validateAndSaveStudentResponses(User student, Quiz quiz, List<StudentResponseDto> responses) {
-//        List<Question> questions = questionRepository.findAllByQuizId(quiz.getId());
-//
-//        if (responses.size() > questions.size()) {
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Too many student responses");
-//        }
-//
-//        List<StudentResponse> capturedResponses = new ArrayList<>();
-//
-//
-//        for (int i = 0; i < questions.size(); i++) {
-//            Question question = questions.get(i);
-//
-//            if (i < responses.size()) {
-//                StudentResponseDto studentResponseDto = responses.get(i);
-//
-//                StudentResponse capturedResponse = new StudentResponse();
-//                capturedResponse.setQuestion(question);
-//                capturedResponse.setStudent(student);
-//                capturedResponse.setResponse(studentResponseDto.getResponse());
-//
-//                capturedResponses.add(capturedResponse);
-//            }
-//        }
-//
-//        studentResponseRepository.saveAll(capturedResponses);
-//    }
-//
-//    private boolean isWithinTimeWindow(Quiz quiz) {
-//        if (quiz.getTimeLimit() <= 0) {
-//            return true;
-//        }
-//
-//        LocalDateTime currentTime = LocalDateTime.now();
-//        LocalDateTime quizStartTime = getQuizStartTime(quiz);
-//        LocalDateTime quizEndTime = quizStartTime.plusMinutes(quiz.getTimeLimit());
-//
-//        return currentTime.isBefore(quizEndTime);
-//    }
-//
-//    private LocalDateTime getQuizStartTime(Quiz quiz) {
-//        return LocalDateTime.now();
-//    }
     @Override
     public List<QuizResponseDto> getQuizzesBySubject(String subjectName) {
 
@@ -616,9 +535,6 @@ try {
         if(user==null){
             throw new UserNotFoundException("User not found");
         }
-//        if (!Objects.equals(user.getUserRole(), Role.EDUCATOR)) {
-//            throw new UserNotVerifiedException("You are not allowed to create quiz");
-//        }
         return user;
     }
 
